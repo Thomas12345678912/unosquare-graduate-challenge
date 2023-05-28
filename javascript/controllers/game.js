@@ -41,11 +41,11 @@ function createGame(req, res) {
     
    
 
-    if (!gameId) return res.sendStatus(404);
+    if (!gameId) return res.status(404);
   
     var game = games[gameId];  
     if (!game) {
-      return res.sendStatus(404); 
+      return res.status(404); 
     }
 
 
@@ -67,17 +67,17 @@ function createGame(req, res) {
         const gameId = req.params.gameId;
         let { letter } = req.body;
         //checking if there is a game Id
-        if (!gameId) return res.sendStatus(404);
+        if (!gameId) return res.status(404);
       //checking if the game is active
         let game = games[gameId];
         if (game.status === "Won" || game.status === "Lost") {
-          return res.sendStatus(400).json({
+          return res.status(400).json({
             Message: "Cannot make a guess. The game is not in progress.",
           });
         }
         //checking the length of the user input
         if (!letter || letter.length !== 1) {
-          return res.sendStatus(400).json({
+          return res.status(400).json({
             Message: "Guess must be supplied with 1 letter",
           });
         }
@@ -87,7 +87,7 @@ function createGame(req, res) {
         const unmaskedWord = game.unmaskedWord.toLowerCase();
       //checking if the letter has already been guessed
         if (game.incorrectGuesses.includes(letter) || game.word.toLowerCase().includes(letter)) {
-          return res.sendStatus(400).json({
+          return res.status(400).json({
             Message: "This letter has already been guessed",
           });
         }
@@ -111,7 +111,7 @@ function createGame(req, res) {
           game.status = "Won";
         }
       
-        res.sendStatus(200).json(clearUnmaskedWord(game));
+        res.status(200).json(clearUnmaskedWord(game));
       }
       
 /**
@@ -124,7 +124,7 @@ function deleteGame(req, res) {
     const gameId = req.params.gameId;
   
     if (!gameId || !games[gameId]) {
-      return res.sendStatus(404).json({ message: "Game not found" });
+      return res.status(404).json({ message: "Game not found" });
     }
   
     const game = games[gameId];

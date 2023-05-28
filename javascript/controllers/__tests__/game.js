@@ -70,13 +70,13 @@ describe("gameController", () => {
         };
     
         const res = {
-          sendStatus: jest.fn().mockReturnThis(),
+          status: jest.fn().mockReturnThis(),
           json: jest.fn(),
         };
     
         gameController.getGame(req, res);
     //simple status check will test the json return in the next test
-        expect(res.sendStatus).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(404);
     
        });
       });
@@ -101,12 +101,12 @@ describe("gameController", () => {
           }
         };
         const res = {
-          sendStatus: jest.fn().mockReturnThis(),
+          status: jest.fn().mockReturnThis(),
           json: jest.fn(),
         };
     
         gameController.createGuess(req, res);
-        expect(res.sendStatus).toHaveBeenCalledWith(404);
+        expect(res.status).toHaveBeenCalledWith(404);
       });
       it('should return status 400 if the guess is not exactly 1 letter', () => {
         
@@ -126,7 +126,7 @@ describe("gameController", () => {
       
         const res = {
 
-          sendStatus: jest.fn().mockReturnThis(),
+          status: jest.fn().mockReturnThis(),
           json: jest.fn(),
         };
       
@@ -134,7 +134,7 @@ describe("gameController", () => {
         gameController.createGuess(req, res);
       
         // checking for adequate response
-        expect(res.sendStatus).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
           Message: "Guess must be supplied with 1 letter",
         });
@@ -156,7 +156,7 @@ describe("gameController", () => {
             };
     
             const res = {
-                sendStatus: jest.fn().mockReturnThis(),
+                status: jest.fn().mockReturnThis(),
                 json: jest.fn(),
             };
     
@@ -164,7 +164,7 @@ describe("gameController", () => {
             gameController.createGuess(req, res);
     
           
-            expect(res.sendStatus).toHaveBeenCalledWith(400);
+            expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
                 Message: "Cannot make a guess. The game is not in progress.",
             });
@@ -184,14 +184,14 @@ describe("gameController", () => {
             };
     
             const res = {
-                sendStatus: jest.fn().mockReturnThis(),
+                status: jest.fn().mockReturnThis(),
                 json: jest.fn(),
             };
             
             gameController.createGuess(req, res);
     
             
-            expect(res.sendStatus).toHaveBeenCalledWith(400);
+            expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
                 Message: "Cannot make a guess. The game is not in progress.",
             });
@@ -214,13 +214,13 @@ describe("gameController", () => {
     };
 
     const res = {
-      sendStatus: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
 
     gameController.createGuess(req, res);
 
-    expect(res.sendStatus).toHaveBeenCalledWith(400);
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       Message: "This letter has already been guessed",
     });
@@ -247,7 +247,7 @@ describe("gameController", () => {
     };
   
     const res = {
-      sendStatus: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
   
@@ -288,44 +288,38 @@ describe("gameController", () => {
           letter : "z"
         }}
         const res={
-          sendStatus: jest.fn().mockReturnThis(),
+          status: jest.fn().mockReturnThis(),
           json: jest.fn(),
         }
       
         gameController.createGuess(req, res);
-        expect(res.sendStatus).toHaveBeenCalledWith(200)
+        expect(res.status).toHaveBeenCalledWith(200)
       });
-    describe("deleteGame function", () => {
-  //deleting game
-          it("should delete game if it exists and is completed", () => {
-         
+      describe("deleteGame function", () => {
+        it("should delete game if it exists and is completed", () => {
             const gameId = mockId;
             const req = {
-              params: {
-                gameId: gameId,
-              },
+                params: {
+                    gameId: gameId,
+                },
             };
             const res = {
-              status: jest.fn().mockReturnThis(),
-              json: jest.fn(),
-              sendStatus: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+                json: jest.fn(),
             };
             games[gameId] = {
-              status: "Won", 
+                status: "Won",
             };
-        
-       
+    
             gameController.deleteGame(req, res);
-        
-          
+    
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({ message: "Game deleted successfully", gameId });
-        
-            
+    
             expect(games[gameId]).toBeUndefined();
-          });
         });
-        
+    });
+    
   }); 
 
     
