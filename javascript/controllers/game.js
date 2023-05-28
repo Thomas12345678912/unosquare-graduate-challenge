@@ -35,8 +35,7 @@ function createGame(req, res) {
   function getGame(req, res) { 
     const gameId = req.params.gameId;   
     
-   //create a first input for the user
-   //plan, make fancy ejs page
+   
 
     if (!gameId) return res.sendStatus(404);
   
@@ -55,62 +54,65 @@ function createGame(req, res) {
     } 
   
 
-  function createGuess(req, res) {
-    const gameId = req.params.gameId;
-    let { letter } = req.body;
-
-    if (!gameId) return res.sendStatus(404);
-
-    var game = games[gameId];
-    if (!game) return res.sendStatus(404);
-    if (game.status !== "In Progress") {
-        return res.status(400).json({
-          Message: "Cannot make a guess. The game is not in progress.",
-        });
-      }
-    if (!letter || letter.length !== 1) {
-        return res.status(400).json({
-            Message: "Guess must be supplied with 1 letter"
-        });
-    }
-
-    // Convert the letter to lowercase or uppercase
-    letter = letter.toLowerCase(); // or letter = letter.toUpperCase();
-
-    // Convert the game word to lowercase or uppercase
-    const unmaskedWord = game.unmaskedWord.toLowerCase(); // or game.unmaskedWord.toUpperCase();
-
-    if (game.incorrectGuesses.includes(letter) || game.word.toLowerCase().includes(letter)) {
-        return res.status(400).json({
-            Message: "This letter has already been guessed"
-        });
-    }
-
-    if (unmaskedWord.includes(letter)) {
-        for (let loop = 0; loop < unmaskedWord.length; loop++) {
-            if (unmaskedWord[loop] === letter) {
-                game.word = game.word.substr(0, loop) + game.unmaskedWord[loop] + game.word.substr(loop + 1);
-            }
+    function createGuess(req, res) {
+        const gameId = req.params.gameId;
+        let { letter } = req.body;
+        if (!gameId) return res.sendStatus(404);
+      
+        let game = games[gameId];
+        if (game.status === "Won" || game.status === "Lost") {
+          return res.sendStatus(400).json({
+            Message: "Cannot make a guess. The game is not in progress.",
+          });
         }
-    } else {
-        game.incorrectGuesses.push(letter);
-        game.remainingGuesses--;
-    }
-
-    if (game.remainingGuesses === 0) {
-        game.status = "Lost";
-        game.word = game.unmaskedWord;
-    } else if (!game.word.includes('_')) {
-        game.status = "Won";
-    }
-
-    return res.status(200).json(clearUnmaskedWord(game));
-}
+        if (!letter || letter.length !== 1) {
+          return res.sendStatus(400).json({
+            Message: "Guess must be supplied with 1 letter",
+          });
+        }
+      
+        letter = letter.toLowerCase();
+      
+        const unmaskedWord = game.unmaskedWord.toLowerCase();
+      
+        if (game.incorrectGuesses.includes(letter) || game.word.toLowerCase().includes(letter)) {
+          return res.sendStatus(400).json({
+            Message: "This letter has already been guessed",
+          });
+        }
+      
+        if (unmaskedWord.includes(letter)) {
+          for (let loop = 0; loop < unmaskedWord.length; loop++) {
+            if (unmaskedWord[loop] === letter) {
+              game.word = game.word.substr(0, loop) + game.unmaskedWord[loop] + game.word.substr(loop + 1);
+            }
+          }
+        } else {
+          game.incorrectGuesses.push(letter);
+          game.remainingGuesses--;
+        }
+      
+        if (game.remainingGuesses === 0) {
+          game.status = "Lost";
+          game.word = game.unmaskedWord;
+        } else if (!game.word.includes("_")) {
+          game.status = "Won";
+        }
+      
+        res.sendStatus(200).json(clearUnmaskedWord(game));
+      }
+      
+/**
+ * function to delete
+ * @param {} req 
+ * @param {*} res 
+ * @returns 
+ */
 function deleteGame(req, res) {
     const gameId = req.params.gameId;
   
     if (!gameId || !games[gameId]) {
-      return res.status(404).json({ message: "Game not found" });
+      return res.sendStatus(404).json({ message: "Game not found" });
     }
   
     const game = games[gameId];
@@ -128,6 +130,7 @@ function deleteGame(req, res) {
     createGame,
     getGame,
     createGuess,
-    deleteGame,
+    deleteGame, 
+    games, clearUnmaskedWord,
   };
   
