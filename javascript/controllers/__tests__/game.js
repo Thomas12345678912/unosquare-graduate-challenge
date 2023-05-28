@@ -17,8 +17,10 @@ describe("gameController", () => {
 });
 
   afterEach(() => {
+    //deleting after
     delete games[mockId];
   });
+  //testing the create game function
     describe("createGame", () => {
       it("Should return identifier when game created", () => {
         const req = {};
@@ -27,15 +29,18 @@ describe("gameController", () => {
         };
 
         gameController.createGame(req, res);
-
+//checking the mock Id is returned
         expect(res.send).toHaveBeenCalledTimes(1);
         expect(res.send).toHaveBeenCalledWith(mockId);
       });
     });
+    //checking get game
     describe("getGame", () => {
+
       it("should return status 200 when game is found", () => {
         const req = {
           params: {
+            //making sure an id is present
             gameId: mockId,
           },
         };
@@ -46,7 +51,7 @@ describe("gameController", () => {
         };
     
         gameController.getGame(req, res);
-    
+    //fabricating a json response
         expect(res.json).toHaveBeenCalledWith({
           game: {
             remainingGuesses: 6,
@@ -57,6 +62,7 @@ describe("gameController", () => {
         });
       });
       it("should return status 404 when the game is not found", () => {
+        //making a request with no id
         const req = {
           params: {
             gameId: "",
@@ -69,7 +75,7 @@ describe("gameController", () => {
         };
     
         gameController.getGame(req, res);
-    
+    //simple status check will test the json return in the next test
         expect(res.sendStatus).toHaveBeenCalledWith(404);
     
        });
@@ -85,6 +91,7 @@ describe("gameController", () => {
 
 
       it("Should return status 404 when the game isn't present", () => {
+        //creating an empty id
         const req = {
           params: {
             gameId: "",
@@ -102,48 +109,50 @@ describe("gameController", () => {
         expect(res.sendStatus).toHaveBeenCalledWith(404);
       });
       it('should return status 400 if the guess is not exactly 1 letter', () => {
-        // Prepare
-        const gameId = "fda56100-0ddb-4f06-9ea4-7c1919ff6d2f";
+        
+        const gameId = mockId;
         games[gameId] = {
-          status: "In Progress", // Game is ongoing
-          unmaskedWord: "Banana", // Example unmasked word
-          // ...Other necessary properties
+          //setting status to in progress
+          status: "In Progress", 
+          unmaskedWord: "Banana", 
+        
         };
       
         const req = {
           params: { gameId },
-          body: { letter: 'ab' }, // Incorrect guess length
+          //creating an incorrect number of letters
+          body: { letter: 'ab' }, 
         };
       
         const res = {
+
           sendStatus: jest.fn().mockReturnThis(),
           json: jest.fn(),
         };
       
-        // Act
+        
         gameController.createGuess(req, res);
       
-        // Assert
+        // checking for adequate response
         expect(res.sendStatus).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
           Message: "Guess must be supplied with 1 letter",
         });
       });
-      
-      describe("createGuess", () => {
-        // ...other tests...
+    
+        
     
         it("should return status 400 if the game has already been won", () => {
-            // Arrange
+          
             const gameId = mockId;
             games[gameId] = {
-                status: "Won", // Game has been won
-                // ...other necessary properties
+                status: "Won", 
             };
     
             const req = {
                 params: { gameId },
-                body: { letter: 'a' }, // Any guess
+                //making a guess after the game has been won
+                body: { letter: 'a' }, 
             };
     
             const res = {
@@ -151,10 +160,10 @@ describe("gameController", () => {
                 json: jest.fn(),
             };
     
-            // Act
+            
             gameController.createGuess(req, res);
     
-            // Assert
+          
             expect(res.sendStatus).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
                 Message: "Cannot make a guess. The game is not in progress.",
@@ -162,7 +171,7 @@ describe("gameController", () => {
         });
     
         it("should return status 400 if the game has already been lost", () => {
-            // Arrange
+          
             const gameId = mockId;
             games[gameId] = {
                 status: "Lost", 
@@ -187,7 +196,7 @@ describe("gameController", () => {
                 Message: "Cannot make a guess. The game is not in progress.",
             });
         });
-    });
+    
     
   it("should return status 400 if the guess has been made previously (incorrect guesses)", () => {
     const gameId = mockId;
@@ -195,7 +204,7 @@ describe("gameController", () => {
       status: "In Progress", 
       word: "banana",
       unmaskedWord: "______",  
-
+//checking guess is already there
       incorrectGuesses: ['c', 'd'], 
     };
 
@@ -217,16 +226,16 @@ describe("gameController", () => {
     });
   });
   it('should update the masked word for a correct guess and add to incorrect guesses for an incorrect guess', () => {
-    // Prepare
-    const gameId = "fda56100-0ddb-4f06-9ea4-7c1919ff6d2f";
+    //creating a new game
+    const gameId = mockId;
     games[gameId] = {
-      status: "In Progress", // Game is ongoing
-      word: "______", // Masked word
-      unmaskedWord: "banana", // Example unmasked word
-      incorrectGuesses: [], // Initial incorrect guesses
-      remainingGuesses: 6 // Initial remaining guesses
+      status: "In Progress", 
+      word: "______", 
+      unmaskedWord: "banana", 
+      incorrectGuesses: [], 
+      remainingGuesses: 6 
     };
-  
+  //creating several different requests
     const req1 = {
       params: { gameId },
       body: { letter: 'b' }, 
@@ -244,7 +253,7 @@ describe("gameController", () => {
   
     
     gameController.createGuess(req1, res);
-    
+    //checking the result of the different requests
     
     expect(games[gameId].word).toEqual("b_____"); 
     expect(games[gameId].incorrectGuesses.length).toEqual(0); 
@@ -261,7 +270,7 @@ describe("gameController", () => {
   });
   
       it("Should return 200 when game is running",()=>{
-        
+    //creating another game to see if the game is running
         games[mockId] = {
           remainingGuesses: 6,
           word: "banana",
@@ -287,7 +296,7 @@ describe("gameController", () => {
         expect(res.sendStatus).toHaveBeenCalledWith(200)
       });
     describe("deleteGame function", () => {
-  
+  //deleting game
           it("should delete game if it exists and is completed", () => {
          
             const gameId = mockId;

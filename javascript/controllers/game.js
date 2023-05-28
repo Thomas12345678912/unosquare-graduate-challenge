@@ -13,7 +13,11 @@ const clearUnmaskedWord = (game) => {
     return withoutUnmasked;
 }
 
-
+/**
+ * making a game
+ * @param {} req 
+ * @param {*} res 
+ */
 function createGame(req, res) {
     const newGameWord = retrieveWord();
     const gameId = uuid();
@@ -53,18 +57,25 @@ function createGame(req, res) {
       });
     } 
   
-
+/**
+ * creating a guess
+ * @param {} req 
+ * @param {*} res 
+ * @returns 
+ */
     function createGuess(req, res) {
         const gameId = req.params.gameId;
         let { letter } = req.body;
+        //checking if there is a game Id
         if (!gameId) return res.sendStatus(404);
-      
+      //checking if the game is active
         let game = games[gameId];
         if (game.status === "Won" || game.status === "Lost") {
           return res.sendStatus(400).json({
             Message: "Cannot make a guess. The game is not in progress.",
           });
         }
+        //checking the length of the user input
         if (!letter || letter.length !== 1) {
           return res.sendStatus(400).json({
             Message: "Guess must be supplied with 1 letter",
@@ -74,13 +85,13 @@ function createGame(req, res) {
         letter = letter.toLowerCase();
       
         const unmaskedWord = game.unmaskedWord.toLowerCase();
-      
+      //checking if the letter has already been guessed
         if (game.incorrectGuesses.includes(letter) || game.word.toLowerCase().includes(letter)) {
           return res.sendStatus(400).json({
             Message: "This letter has already been guessed",
           });
         }
-      
+      //checking if the letter is in the word
         if (unmaskedWord.includes(letter)) {
           for (let loop = 0; loop < unmaskedWord.length; loop++) {
             if (unmaskedWord[loop] === letter) {
@@ -88,10 +99,11 @@ function createGame(req, res) {
             }
           }
         } else {
+            //adding the letter to the guessed letters if it isnt
           game.incorrectGuesses.push(letter);
           game.remainingGuesses--;
         }
-      
+      //checking the status of the game
         if (game.remainingGuesses === 0) {
           game.status = "Lost";
           game.word = game.unmaskedWord;
